@@ -30,7 +30,7 @@
  * Original Author:  Robby McKilliam
  * Contributor(s):   -
  *
- * $Id: StoerWagnerMinimumCut.java 681 2009-05-25 06:17:31Z perfecthash $
+ * $Id: StoerWagnerMinimumCut.java $
  *
  * Changes
  * -------
@@ -38,13 +38,18 @@
  */
 package org.jgrapht.alg;
 
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.jgrapht.WeightedGraph;
-import org.jgrapht.graph.Subgraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
+import org.jgrapht.util.MapVertices;
 
 /**
- * Implements the Stoer and Wanger minimum cut algorithm.  Runs in O(|V||E|  + |V|log|V|) time.
+ * Implements the Stoer and Wagner minimum cut algorithm.  Runs in O(|V||E|  + |V|log|V|) time.
  * 
  * M. Stoer and F. Wagner, "A Simple Min-Cut Algorithm", Journal of the ACM, 
  * volume 44, number 4. pp 585-591, 1997.
@@ -53,24 +58,54 @@ import org.jgrapht.graph.Subgraph;
  */
 public class StoerWagnerMinimumCut<V, E> {
     
-    final V a;
+    final WeightedGraph<Set<V>, E> G;
     
-    final WeightedGraph<V, E> G;
-    
-    public StoerWagnerMinimumCut(WeightedGraph<V, E> graph){
+    /**
+     * Will compute the minimum cut in graph.
+     * Second argument is the edge class, to get around java generic behaviour.
+     */
+    public StoerWagnerMinimumCut(WeightedGraph<V, E> graph, Class<E> edgeclass){
         
-        //arbitrary vertex use to seed the algorithm.
-        a = graph.vertexSet().iterator().next();
+        G = new SimpleWeightedGraph<Set<V>, E>(edgeclass);
+        MapVertices<V,E,Set<V>> vamp = new MapVertices<V,E,Set<V>>(graph, G) {
+            @Override
+            public Set<V> function(V v) { 
+                Set<V> list = new HashSet<V>();
+                list.add(v);
+                return list;
+            }
+        };
         
-        G = graph;
+        //arbitrary vertex used to seed the algorithm.
+        Set<V> a = G.vertexSet().iterator().next();
         
         //System.out.println(G);
         
     }
     
-    /** Merges two vertices together, summing the weights as required. */
-    protected void mergeVertices(V s, V t){
-        for( V v : G.vertexSet() ){
+    
+    protected void minimumCutPhase(Set<V> a){
+        //construct Fibonacci heap with vertices connected to a
+        FibonacciHeap<Set<V>> heap = new FibonacciHeap<Set<V>>();
+        for(Set<V> v : G.vertexSet()) {
+            if( v != a ) 
+                heap.insert(new FibonacciHeapNode<Set<V>>(v), G.getEdgeWeight(G.getEdge(v, a)));
+        }
+        //traverse and update the heap until only two vertices remain
+    }
+    
+      
+    /** Merges vertex t into vertex s, summing the weights as required. */
+    protected void mergeVertices(Set<V> s, Set<V> t){
+        
+        //construct the new combinedvertex
+        Set<V> set = new HashSet<V>();
+        for( V  v : s) set.add(v);
+        for( V  v : t) set.add(v);
+        G.addVertex(set);
+        
+        //add edges and weights to the combined vertex
+        for( Set<V> v : G.vertexSet() ){
             if(s != v  && t != v){
                 E etv = G.getEdge(t, v);
                 E esv = G.getEdge(s, v);
@@ -78,19 +113,19 @@ public class StoerWagnerMinimumCut<V, E> {
                 if(etv != null)  wtv = G.getEdgeWeight(etv);
                 if(esv != null)  wsv = G.getEdgeWeight(esv);
                 double neww = wtv + wsv;
-                if(neww != 0.0){
-                    if(esv == null) G.addEdge(s, v);
-                    G.setEdgeWeight(esv, neww);
-                }
+                if(neww != 0.0) 
+                    G.setEdgeWeight(G.addEdge(set, v), neww);
             }
         }
+        
+        //remove original vertices
         G.removeVertex(t);
+        G.removeVertex(s);
+        
     }
     
-    /** Returns the closest vertex in G to the set of vertices A */
-    protected V closestVertex(List<V> A, List<V> Ad){
-        return null;
-    }
+    /** For testing */
+    protected WeightedGraph<Set<V>, E> getWorkingGraph(){ return G; }
     
     
     

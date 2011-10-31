@@ -46,7 +46,7 @@ import org.jgrapht.*;
  * Implementation of the GraphMapping interface. The performance of <code>
  * getVertex/EdgeCorrespondence</code> is based on the performance of the
  * concrete Map class which is passed in the constructor. For example, using
- * hashmaps will provide O(1) performence.
+ * hashmaps will provide O(1) performance.
  *
  * @author Assaf
  * @since Jul 30, 2005
