@@ -78,7 +78,7 @@ public class StoerWagnerMinimumCutTest {
         
         //mincut.mergeVertices(v1set, v2set, g);
         
-        System.out.println(mincut.getWorkingGraph());
+       // System.out.println(mincut.getWorkingGraph());
         
 //        assertTrue(g.containsEdge(v1, v3));
 //        assertTrue(g.containsEdge(v3, v1));

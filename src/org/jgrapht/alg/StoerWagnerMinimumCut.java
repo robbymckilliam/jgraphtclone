@@ -88,23 +88,24 @@ public class StoerWagnerMinimumCut<V, E> {
     
     protected void minimumCutPhase(Set<V> a){
         
-        //make a copy of the current graph G
-        SimpleWeightedGraph<Set<V>, E> Gc = new SimpleWeightedGraph<Set<V>, E>(edgeclass);
-        MapVertices<Set<V>,E,Set<V>> vamp = new MapVertices<Set<V>,E,Set<V>>(G, Gc) {
-            public Set<V> function(Set<V> v) { return v; }
-        };
-        
         //construct Fibonacci heap with vertices connected to vertex a
         FibonacciHeap<Set<V>> heap = new FibonacciHeap<Set<V>>();
-        for(Set<V> v : Gc.vertexSet()) {
+        for(Set<V> v : G.vertexSet()) {
             if( v != a ) 
-                heap.insert(new FibonacciHeapNode<Set<V>>(v), -Gc.getEdgeWeight(Gc.getEdge(v, a)));
+                heap.insert(new FibonacciHeapNode<Set<V>>(v), -G.getEdgeWeight(G.getEdge(v, a)));
         }
         
         //now iterate and update the heap
         //for ...
-        Set<V> mv = heap.min().getData();
-        mergeVertices(a,mv,Gc);
+        List<Set<V>> list = new LinkedList<Set<V>>();
+        while(!heap.isEmpty()){
+            Set<V> v = heap.removeMin().getData(); //this is O(logn) but should be O(1) ?
+            list.add(v);
+            for( E e : G.edgesOf(v) ){
+                if( v != G.getEdgeSource(e) ) ; //will need to check FibonacciHeapNode behaviour
+                G.getEdgeTarget(e);
+            }
+        }
     }
     
       
