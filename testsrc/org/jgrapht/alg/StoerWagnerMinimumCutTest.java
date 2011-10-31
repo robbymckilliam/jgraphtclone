@@ -73,10 +73,10 @@ public class StoerWagnerMinimumCutTest {
                 new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
         
         
-        Set<String> v1set = new HashSet<String>(); v1set.add(v1);
-        Set<String> v2set = new HashSet<String>(); v1set.add(v2);
+        //Set<String> v1set = new HashSet<String>(); v1set.add(v1);
+        //Set<String> v2set = new HashSet<String>(); v1set.add(v2);
         
-        mincut.mergeVertices(v1set, v2set);
+        //mincut.mergeVertices(v1set, v2set, g);
         
         System.out.println(mincut.getWorkingGraph());
         

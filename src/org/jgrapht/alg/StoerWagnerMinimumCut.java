@@ -58,6 +58,8 @@ import org.jgrapht.util.MapVertices;
  */
 public class StoerWagnerMinimumCut<V, E> {
     
+    final Class<E> edgeclass;
+    
     final WeightedGraph<Set<V>, E> G;
     
     /**
@@ -65,10 +67,10 @@ public class StoerWagnerMinimumCut<V, E> {
      * Second argument is the edge class, to get around java generic behaviour.
      */
     public StoerWagnerMinimumCut(WeightedGraph<V, E> graph, Class<E> edgeclass){
+        this.edgeclass = edgeclass;
         
         G = new SimpleWeightedGraph<Set<V>, E>(edgeclass);
         MapVertices<V,E,Set<V>> vamp = new MapVertices<V,E,Set<V>>(graph, G) {
-            @Override
             public Set<V> function(V v) { 
                 Set<V> list = new HashSet<V>();
                 list.add(v);
@@ -85,18 +87,29 @@ public class StoerWagnerMinimumCut<V, E> {
     
     
     protected void minimumCutPhase(Set<V> a){
-        //construct Fibonacci heap with vertices connected to a
+        
+        //make a copy of the current graph G
+        SimpleWeightedGraph<Set<V>, E> Gc = new SimpleWeightedGraph<Set<V>, E>(edgeclass);
+        MapVertices<Set<V>,E,Set<V>> vamp = new MapVertices<Set<V>,E,Set<V>>(G, Gc) {
+            public Set<V> function(Set<V> v) { return v; }
+        };
+        
+        //construct Fibonacci heap with vertices connected to vertex a
         FibonacciHeap<Set<V>> heap = new FibonacciHeap<Set<V>>();
-        for(Set<V> v : G.vertexSet()) {
+        for(Set<V> v : Gc.vertexSet()) {
             if( v != a ) 
-                heap.insert(new FibonacciHeapNode<Set<V>>(v), G.getEdgeWeight(G.getEdge(v, a)));
+                heap.insert(new FibonacciHeapNode<Set<V>>(v), -Gc.getEdgeWeight(Gc.getEdge(v, a)));
         }
-        //traverse and update the heap until only two vertices remain
+        
+        //now iterate and update the heap
+        //for ...
+        Set<V> mv = heap.min().getData();
+        mergeVertices(a,mv,Gc);
     }
     
       
     /** Merges vertex t into vertex s, summing the weights as required. */
-    protected void mergeVertices(Set<V> s, Set<V> t){
+    protected void mergeVertices(Set<V> s, Set<V> t, WeightedGraph<Set<V>, E> G){
         
         //construct the new combinedvertex
         Set<V> set = new HashSet<V>();
@@ -123,11 +136,5 @@ public class StoerWagnerMinimumCut<V, E> {
         G.removeVertex(s);
         
     }
-    
-    /** For testing */
-    protected WeightedGraph<Set<V>, E> getWorkingGraph(){ return G; }
-    
-    
-    
     
 }
