@@ -195,36 +195,36 @@ public abstract class AbstractGraph<V, E>
         Collection<? extends E> edgeSet,
         boolean directed)
     {
-        List<String> renderedEdges = new ArrayList<String>();
+//        List<String> renderedEdges = new ArrayList<String>();
+//
+//        StringBuffer sb = new StringBuffer();
+//        for (E e : edgeSet) {
+//            if ((e.getClass() != DefaultEdge.class)
+//                && (e.getClass() != DefaultWeightedEdge.class))
+//            {
+//                sb.append(e.toString());
+//                sb.append("=");
+//            }
+//            if (directed) {
+//                sb.append("(");
+//            } else {
+//                sb.append("{");
+//            }
+//            sb.append(getEdgeSource(e));
+//            sb.append(",");
+//            sb.append(getEdgeTarget(e));
+//            if (directed) {
+//                sb.append(")");
+//            } else {
+//                sb.append("}");
+//            }
+//
+//            // REVIEW jvs 29-May-2006:  dump weight somewhere?
+//            renderedEdges.add(sb.toString());
+//            sb.setLength(0);
+//        }
 
-        StringBuffer sb = new StringBuffer();
-        for (E e : edgeSet) {
-            if ((e.getClass() != DefaultEdge.class)
-                && (e.getClass() != DefaultWeightedEdge.class))
-            {
-                sb.append(e.toString());
-                sb.append("=");
-            }
-            if (directed) {
-                sb.append("(");
-            } else {
-                sb.append("{");
-            }
-            sb.append(getEdgeSource(e));
-            sb.append(",");
-            sb.append(getEdgeTarget(e));
-            if (directed) {
-                sb.append(")");
-            } else {
-                sb.append("}");
-            }
-
-            // REVIEW jvs 29-May-2006:  dump weight somewhere?
-            renderedEdges.add(sb.toString());
-            sb.setLength(0);
-        }
-
-        return "(" + vertexSet + ", " + renderedEdges + ")";
+        return "(" + vertexSet + ", " + edgeSet + ")";
     }
 }
 

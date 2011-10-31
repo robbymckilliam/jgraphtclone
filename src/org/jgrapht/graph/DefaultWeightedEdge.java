@@ -72,6 +72,12 @@ public class DefaultWeightedEdge
     {
         return weight;
     }
+    
+    @Override
+    public String toString()
+    {
+        return "(" + source + "-" + target + ", " + weight + ")";
+    }
 }
 
 // End DefaultWeightedEdge.java
