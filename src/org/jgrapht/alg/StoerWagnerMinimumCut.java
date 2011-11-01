@@ -52,7 +52,9 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.util.MapVertices;
 
 /**
- * Implements the Stoer and Wagner minimum cut algorithm.  Runs in O(|V||E|  + |V|log|V|) time.
+ * Implements the Stoer and Wagner minimum cut algorithm.  Deterministically computes the
+ * minimum cut in O(|V||E|  + |V|log|V|) time.  This implementation uses Java's PriorityQueue
+ * and requires O(|V||E|log|E|) time. 
  * 
  * M. Stoer and F. Wagner, "A Simple Min-Cut Algorithm", Journal of the ACM, 
  * volume 44, number 4. pp 585-591, 1997.

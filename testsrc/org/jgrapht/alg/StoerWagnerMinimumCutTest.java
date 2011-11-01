@@ -50,8 +50,8 @@ public class StoerWagnerMinimumCutTest {
      * Test of mergeVertices method, of class StoerWagnerMinimumCut.
      */
     @Test
-    public void testMinCut() {
-        System.out.println("testMinCut");
+    public void testMinCut14() {
+        System.out.println("test min cut with a 4 vertex graph");
         
         SimpleWeightedGraph<String, DefaultWeightedEdge> g = new
                 SimpleWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
@@ -70,10 +70,39 @@ public class StoerWagnerMinimumCutTest {
         StoerWagnerMinimumCut<String, DefaultWeightedEdge> mincut = 
                 new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
       
-        System.out.println(mincut.bestCut);
-        System.out.println(mincut.bestcutweight);
+        //System.out.println(mincut.bestCut);
+        //System.out.println(mincut.bestcutweight);
         
         assertEquals(4.0, mincut.bestcutweight, 0.000001);
+        
+    }
+    
+        /**
+     * Test of mergeVertices method, of class StoerWagnerMinimumCut.
+     */
+    @Test
+    public void testMinCutDisconnected() {
+        System.out.println("test min cut with a disconnected graph");
+        
+        SimpleWeightedGraph<String, DefaultWeightedEdge> g = new
+                SimpleWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+        g.addVertex(v1);
+        g.addVertex(v2);
+        g.addVertex(v3);
+        g.addVertex(v4);
+        
+        DefaultWeightedEdge e;
+        e = g.addEdge(v1, v2); g.setEdgeWeight(e, 3.0);         
+        e = g.addEdge(v1, v3); g.setEdgeWeight(e, 2.0);
+        e = g.addEdge(v2, v3); g.setEdgeWeight(e, 1.0);
+        
+        StoerWagnerMinimumCut<String, DefaultWeightedEdge> mincut = 
+                new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
+      
+        //System.out.println(mincut.bestCut);
+        //System.out.println(mincut.bestcutweight);
+        
+        assertEquals(0.0, mincut.bestcutweight, 0.000001);
         
     }
     
