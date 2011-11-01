@@ -10,6 +10,7 @@ import java.util.Set;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,13 +45,13 @@ public class StoerWagnerMinimumCutTest {
     @After
     public void tearDown() {
     }
-
+    
     /**
      * Test of mergeVertices method, of class StoerWagnerMinimumCut.
      */
     @Test
-    public void testMergeVertices() {
-        System.out.println("testMergeVertices");
+    public void testMinCut() {
+        System.out.println("testMinCut");
         
         SimpleWeightedGraph<String, DefaultWeightedEdge> g = new
                 SimpleWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
@@ -66,62 +67,94 @@ public class StoerWagnerMinimumCutTest {
         e = g.addEdge(v2, v3); g.setEdgeWeight(e, 1.0);
         e = g.addEdge(v3, v4); g.setEdgeWeight(e, 1.0);
         
-        System.out.println(g);
-        
         StoerWagnerMinimumCut<String, DefaultWeightedEdge> mincut = 
                 new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
+      
+        System.out.println(mincut.bestCut);
+        System.out.println(mincut.bestcutweight);
         
-        System.out.println(mincut.getWorkingGraph());
-
-        Iterator<Set<String>> vitr = mincut.getWorkingGraph().vertexSet().iterator();
-        
-        Set<String> v1set = vitr.next();
-        Set<String> v2set = vitr.next();
-        
-        mincut.mergeVertices(v1set, v2set);
-        
-        System.out.println(mincut.getWorkingGraph());
-        
-//        assertTrue(g.containsEdge(v1, v3));
-//        assertTrue(g.containsEdge(v3, v1));
-//        e = g.getEdge(v1, v3); assertEquals(g.getEdgeWeight(e), 3.0, 0.000001);
-//        assertTrue(g.containsEdge(v1, v4));
-//        assertTrue(g.containsEdge(v4, v1));
-//        e = g.getEdge(v1, v4); assertEquals(g.getEdgeWeight(e), 4.0, 0.000001);
+        assertEquals(4.0, mincut.bestcutweight, 0.000001);
         
     }
     
-    /**
-     * Test of mergeVertices method, of class StoerWagnerMinimumCut.
-     */
-    @Test
-    public void testMinCutPhase() {
-        System.out.println("testMinCutPhase");
-        
-        SimpleWeightedGraph<String, DefaultWeightedEdge> g = new
-                SimpleWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-        g.addVertex(v1);
-        g.addVertex(v2);
-        g.addVertex(v3);
-        g.addVertex(v4);
-        
-        DefaultWeightedEdge e;
-        e = g.addEdge(v1, v2); g.setEdgeWeight(e, 3.0);         
-        e = g.addEdge(v1, v3); g.setEdgeWeight(e, 1.0);
-        e = g.addEdge(v1, v4); g.setEdgeWeight(e, 4.0);
-        e = g.addEdge(v2, v3); g.setEdgeWeight(e, 1.0);
-        e = g.addEdge(v3, v4); g.setEdgeWeight(e, 10.0);
-        
-        StoerWagnerMinimumCut<String, DefaultWeightedEdge> mincut = 
-                new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
-        
-        mincut.minimumCutPhase(mincut.getWorkingGraph().vertexSet().iterator().next());
-        
-        
-        
-        //System.out.println(mincut.getWorkingGraph());
-        
-        
-    }
+
+//    /**
+//     * Test of mergeVertices method, of class StoerWagnerMinimumCut.
+//     */
+//    @Test
+//    public void testMergeVertices() {
+//        System.out.println("testMergeVertices");
+//        
+//        SimpleWeightedGraph<String, DefaultWeightedEdge> g = new
+//                SimpleWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+//        g.addVertex(v1);
+//        g.addVertex(v2);
+//        g.addVertex(v3);
+//        g.addVertex(v4);
+//        
+//        DefaultWeightedEdge e;
+//        e = g.addEdge(v1, v2); g.setEdgeWeight(e, 3.0);         
+//        e = g.addEdge(v1, v3); g.setEdgeWeight(e, 2.0);
+//        e = g.addEdge(v1, v4); g.setEdgeWeight(e, 4.0);
+//        e = g.addEdge(v2, v3); g.setEdgeWeight(e, 1.0);
+//        e = g.addEdge(v3, v4); g.setEdgeWeight(e, 1.0);
+//        
+//        System.out.println(g);
+//        
+//        StoerWagnerMinimumCut<String, DefaultWeightedEdge> mincut = 
+//                new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
+//        
+//        System.out.println(mincut.getWorkingGraph());
+//
+//        Iterator<Set<String>> vitr = mincut.getWorkingGraph().vertexSet().iterator();
+//        
+//        Set<String> v1set = vitr.next();
+//        Set<String> v2set = vitr.next();
+//        
+//        mincut.mergeVertices(v1set, v2set);
+//        
+//        //System.out.println(mincut.getWorkingGraph());
+//        
+////        assertTrue(g.containsEdge(v1, v3));
+////        assertTrue(g.containsEdge(v3, v1));
+////        e = g.getEdge(v1, v3); assertEquals(g.getEdgeWeight(e), 3.0, 0.000001);
+////        assertTrue(g.containsEdge(v1, v4));
+////        assertTrue(g.containsEdge(v4, v1));
+////        e = g.getEdge(v1, v4); assertEquals(g.getEdgeWeight(e), 4.0, 0.000001);
+//        
+//    }
+//    
+//    /**
+//     * Test of mergeVertices method, of class StoerWagnerMinimumCut.
+//     */
+//    @Test
+//    public void testMinCutPhase() {
+//        System.out.println("testMinCutPhase");
+//        
+//        SimpleWeightedGraph<String, DefaultWeightedEdge> g = new
+//                SimpleWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+//        g.addVertex(v1);
+//        g.addVertex(v2);
+//        g.addVertex(v3);
+//        g.addVertex(v4);
+//        
+//        DefaultWeightedEdge e;
+//        e = g.addEdge(v1, v2); g.setEdgeWeight(e, 3.0);         
+//        e = g.addEdge(v1, v3); g.setEdgeWeight(e, 1.0);
+//        e = g.addEdge(v1, v4); g.setEdgeWeight(e, 4.0);
+//        e = g.addEdge(v2, v3); g.setEdgeWeight(e, 1.0);
+//        e = g.addEdge(v3, v4); g.setEdgeWeight(e, 2.0);
+//        
+//        StoerWagnerMinimumCut<String, DefaultWeightedEdge> mincut = 
+//                new StoerWagnerMinimumCut<String, DefaultWeightedEdge>(g, DefaultWeightedEdge.class);
+//        
+//        mincut.minimumCutPhase(mincut.getWorkingGraph().vertexSet().iterator().next());
+//        
+//        //assertEquals(6.0,mincut.bestcutweight, 0.00000001);
+//        
+//        //System.out.println(mincut.getWorkingGraph());
+//        
+//        
+//    }
 
 }

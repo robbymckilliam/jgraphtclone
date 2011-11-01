@@ -38,6 +38,7 @@
  */
 package org.jgrapht.alg;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -64,6 +65,9 @@ public class StoerWagnerMinimumCut<V, E> {
     
     final WeightedGraph<Set<V>, E> G;
     
+    double bestcutweight = Double.POSITIVE_INFINITY;
+    Set<V> bestCut;
+    
     /**
      * Will compute the minimum cut in graph.
      * Second argument is the edge class, to get around java generic behaviour.
@@ -71,6 +75,7 @@ public class StoerWagnerMinimumCut<V, E> {
     public StoerWagnerMinimumCut(WeightedGraph<V, E> graph, Class<E> edgeclass){
         this.edgeclass = edgeclass;
         
+        //get a version of this graph where each vertex is wrapped with a list
         G = new SimpleWeightedGraph<Set<V>, E>(edgeclass);
         MapVertices<V,E,Set<V>> vamp = new MapVertices<V,E,Set<V>>(graph, G) {
             public Set<V> function(V v) { 
@@ -82,11 +87,11 @@ public class StoerWagnerMinimumCut<V, E> {
         
         //arbitrary vertex used to seed the algorithm.
         Set<V> a = G.vertexSet().iterator().next();
-        
-        //System.out.println(G);
+        while(G.vertexSet().size() > 2) minimumCutPhase(a);
         
     }
     
+    boolean firstrun = true;
     /** Implements the MinimumCutPhase function of Stoer and Wagner */
     protected void minimumCutPhase(Set<V> a){
         
@@ -103,12 +108,12 @@ public class StoerWagnerMinimumCut<V, E> {
         }
         
         //now iteratatively update the queue to get the required vertex ordering
-        List<Set<V>> list = new LinkedList<Set<V>>();
+        List<Set<V>> list = new ArrayList<Set<V>> (G.vertexSet().size());
         list.add(a);
         while(!queue.isEmpty()){
-            Set<V> v = queue.poll().vertex; //this is O(logn) but could be O(1), i.e extract-max?
-            dmap.remove(v);
-            System.out.println(v);
+            //System.out.println(queue);
+            Set<V> v = queue.poll().vertex; 
+            dmap.remove(v);         
             list.add(v);
             for( E e : G.edgesOf(v) ){
                 Set<V> vc;
@@ -116,18 +121,46 @@ public class StoerWagnerMinimumCut<V, E> {
                 else vc = G.getEdgeTarget(e);
                 if(dmap.get(vc) != null){
                     Double neww = - G.getEdgeWeight(G.getEdge(v, vc)) + dmap.get(vc).weight;                 
-                    queue.remove(dmap.get(vc));
+                    queue.remove(dmap.get(vc)); //this is O(logn) but could be O(1)?
                     dmap.get(vc).weight = neww;
-                    queue.add(dmap.get(vc));
+                    queue.add(dmap.get(vc)); //this is O(logn) but could be O(1)?
                 }
             }
         }
         
-        //the last two elements in list are the vertices we want to merge. Merge these vertices 
-        //and get the weight.  If this corresponds to the best cut so far, then store it.
+        //if this is the first run we compute the weight of last vertex in the list
+        if(firstrun){
+            Set<V> v = list.get(list.size()-1);
+            double w = vertexWeight(v);
+            //System.out.println(w);
+            //System.out.println(v);
+            if(w < bestcutweight){
+                bestcutweight = w;
+                bestCut = v;
+            }
+            firstrun = false;
+        }
+        
+        //the last two elements in list are the vertices we want to merge. 
+        Set<V> s = list.get(list.size()-2);
+        Set<V> t = list.get(list.size()-1);
+        //merge these vertices and get the weight.  
+        VertexAndWeight vw = mergeVertices(s, t); 
+        //If this is the best cut so far store it.
+        if(vw.weight < bestcutweight){
+            bestcutweight = vw.weight;
+            bestCut = vw.vertex;
+        }
+        //System.out.println(vw);
+        
     }
     
-      
+    /** Return the weight of the minimum cut */
+    public double minCutWeight() { return bestcutweight; }
+    
+    /** Return a set of vertices on one side of the cut */
+    public Set<V> minCut() { return bestCut; }
+    
     /** 
      * Merges vertex t into vertex s, summing the weights as required.
      * Returns the merged vertex and the sum of its weights
@@ -162,6 +195,14 @@ public class StoerWagnerMinimumCut<V, E> {
         
         return new VertexAndWeight(set, wsum);
         
+    }
+    
+    /** Compute the sum of the weights entering a vertex */
+    public double vertexWeight(Set<V> v){
+        double wsum = 0.0;
+        for( E e : G.edgesOf(v) )
+            wsum += G.getEdgeWeight(e);
+        return wsum;
     }
     
     //for testing
