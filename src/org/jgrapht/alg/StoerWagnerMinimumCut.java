@@ -38,14 +38,16 @@
  */
 package org.jgrapht.alg;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.TreeSet;
 import org.jgrapht.WeightedGraph;
 import org.jgrapht.graph.SimpleWeightedGraph;
-import org.jgrapht.util.FibonacciHeap;
-import org.jgrapht.util.FibonacciHeapNode;
 import org.jgrapht.util.MapVertices;
 
 /**
@@ -85,32 +87,52 @@ public class StoerWagnerMinimumCut<V, E> {
         
     }
     
-    
+    /** Implements the MinimumCutPhase function of Stoer and Wagner */
     protected void minimumCutPhase(Set<V> a){
         
-        //construct Fibonacci heap with vertices connected to vertex a
-        FibonacciHeap<Set<V>> heap = new FibonacciHeap<Set<V>>();
+        //construct sorted queue with vertices connected to vertex a
+        PriorityQueue<VertexAndWeight> queue = new PriorityQueue<VertexAndWeight>();
+        Map<Set<V>, VertexAndWeight> dmap = new HashMap<Set<V>, VertexAndWeight>();
         for(Set<V> v : G.vertexSet()) {
-            if( v != a ) 
-                heap.insert(new FibonacciHeapNode<Set<V>>(v), -G.getEdgeWeight(G.getEdge(v, a)));
-        }
-        
-        //now iterate and update the heap
-        //for ...
-        List<Set<V>> list = new LinkedList<Set<V>>();
-        while(!heap.isEmpty()){
-            Set<V> v = heap.removeMin().getData(); //this is O(logn) but should be O(1) ?
-            list.add(v);
-            for( E e : G.edgesOf(v) ){
-                if( v != G.getEdgeSource(e) ) ; //will need to check FibonacciHeapNode behaviour
-                G.getEdgeTarget(e);
+            if( v != a ){
+                Double w = -G.getEdgeWeight(G.getEdge(v, a));
+                VertexAndWeight vandw = new VertexAndWeight(v,w);
+                queue.add(vandw);
+                dmap.put(v, vandw);
             }
         }
+        
+        //now iteratatively update the queue to get the required vertex ordering
+        List<Set<V>> list = new LinkedList<Set<V>>();
+        list.add(a);
+        while(!queue.isEmpty()){
+            Set<V> v = queue.poll().vertex; //this is O(logn) but could be O(1), i.e extract-max?
+            dmap.remove(v);
+            System.out.println(v);
+            list.add(v);
+            for( E e : G.edgesOf(v) ){
+                Set<V> vc;
+                if( v != G.getEdgeSource(e) ) vc = G.getEdgeSource(e); 
+                else vc = G.getEdgeTarget(e);
+                if(dmap.get(vc) != null){
+                    Double neww = - G.getEdgeWeight(G.getEdge(v, vc)) + dmap.get(vc).weight;                 
+                    queue.remove(dmap.get(vc));
+                    dmap.get(vc).weight = neww;
+                    queue.add(dmap.get(vc));
+                }
+            }
+        }
+        
+        //the last two elements in list are the vertices we want to merge. Merge these vertices 
+        //and get the weight.  If this corresponds to the best cut so far, then store it.
     }
     
       
-    /** Merges vertex t into vertex s, summing the weights as required. */
-    protected void mergeVertices(Set<V> s, Set<V> t, WeightedGraph<Set<V>, E> G){
+    /** 
+     * Merges vertex t into vertex s, summing the weights as required.
+     * Returns the merged vertex and the sum of its weights
+     */
+    protected VertexAndWeight mergeVertices(Set<V> s, Set<V> t){
         
         //construct the new combinedvertex
         Set<V> set = new HashSet<V>();
@@ -119,6 +141,7 @@ public class StoerWagnerMinimumCut<V, E> {
         G.addVertex(set);
         
         //add edges and weights to the combined vertex
+        double wsum = 0.0;
         for( Set<V> v : G.vertexSet() ){
             if(s != v  && t != v){
                 E etv = G.getEdge(t, v);
@@ -127,6 +150,7 @@ public class StoerWagnerMinimumCut<V, E> {
                 if(etv != null)  wtv = G.getEdgeWeight(etv);
                 if(esv != null)  wsv = G.getEdgeWeight(esv);
                 double neww = wtv + wsv;
+                wsum += neww;
                 if(neww != 0.0) 
                     G.setEdgeWeight(G.addEdge(set, v), neww);
             }
@@ -136,6 +160,32 @@ public class StoerWagnerMinimumCut<V, E> {
         G.removeVertex(t);
         G.removeVertex(s);
         
+        return new VertexAndWeight(set, wsum);
+        
     }
     
+    //for testing
+    protected WeightedGraph<Set<V>, E> getWorkingGraph() { return G; }
+    
+    /** Class for weighted vertices */
+    protected class VertexAndWeight implements Comparable<VertexAndWeight> {
+        public Set<V> vertex;
+        public Double weight;
+        
+        public VertexAndWeight(Set<V> v, double w){
+            this.vertex = v;
+            this.weight = w;
+        }
+        
+        @Override
+        public int compareTo(VertexAndWeight that) {
+            return Double.compare(weight, that.weight);
+        } 
+
+        @Override
+        public String toString() {
+            return "(" + vertex + ", " + weight + ")";
+        }
+    
+    }
 }
